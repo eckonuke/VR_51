@@ -47,7 +47,7 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 
 void UMoveComponent::Move(const struct FInputActionValue& value) {
 	FVector2D axis = value.Get<FVector2D>();
-	FVector direction = FVector(axis.Y, axis.X, 0.0f);
+	FVector direction = FVector(axis.X, axis.Y, 0.0f);
 
 	player->AddMovementInput(direction.GetSafeNormal(), 1, false);
 
@@ -66,7 +66,7 @@ void UMoveComponent::DrawMoveLine() {
 	float timeInterval = 0.02f;
 	int32 count = 50;
 
-	//FVector dir = FVector::ForwardVector - FVector::UpVector;
+	//FVector dir = FVector::ForwardVector + FVector::UpVector;
 	//dir = player->leftHand->GetComponentTransform().TransformVector(dir.GetSafeNormal());
 	//왼손 모델링의 로컬 좌표에 맞춰서 forward 방향과 up 방향을 다시 계산한다
 	FVector handForward = FRotationMatrix(player->leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y);
