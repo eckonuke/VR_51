@@ -70,7 +70,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Inputs")
 		TArray<class UInputAction*> rightInputs;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
+		class UMoveComponent* moveComp;
+
 private:
+	//왼손 입력
 	void OnTriggerLeft(const struct FInputActionValue& value);
-	void RotateAxis(const struct FInputActionValue& value);
+	
+	void OnGripLeft(const struct FInputActionValue& value);
+	void OnButtonXLeft(const struct FInputActionValue& value);
+	void OnButtonYLeft(const struct FInputActionValue& value);
+	void OnButtonMenuLeft(const struct FInputActionValue& value);
+
+	//오른손 입력
+	void OnTriggerRight(const struct FInputActionValue& value);
+	void OnGripRight(const struct FInputActionValue& value);
+	void OnButtonARight(const struct FInputActionValue& value);
+	void OnButtonBRight(const struct FInputActionValue& value);
+	void OnButtonMenuRight(const struct FInputActionValue& value);
 };

@@ -15,6 +15,7 @@
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h>
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputMappingContext.h>
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputAction.h>
+#include "MoveComponent.h"
 
 // Sets default values
 AVR_Player::AVR_Player()
@@ -45,7 +46,7 @@ AVR_Player::AVR_Player()
 	//오른손 로그
 	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Right Log Text"));
 	rightLog->SetupAttachment(rightController);
-	rightLog->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
+	rightLog->SetRelativeRotation(FRotator(25.0f, 0.0f, 90.0f));
 	rightLog->SetTextRenderColor(FColor::Yellow);
 	rightLog->SetHorizontalAlignment(EHTA_Center);
 	rightLog->SetVerticalAlignment(EVRTA_TextCenter);
@@ -74,6 +75,9 @@ AVR_Player::AVR_Player()
 
 	//내가 플레이하는 플레이어 선택
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	//액터 MoveComponent 추가
+	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -106,9 +110,25 @@ void AVR_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (enhancedInputComponent != nullptr) {
-		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Triggered, this, &AVR_Player::OnTriggerLeft);
-		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AVR_Player::OnTriggerLeft);
-		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &AVR_Player::RotateAxis);
+		
+		//왼손 입력
+		/*enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Triggered, this, &AVR_Player::OnTriggerLeft);
+		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AVR_Player::OnTriggerLeft);*/
+		//enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &AVR_Player::RotateAxis);
+		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AVR_Player::OnGripLeft);
+		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonXLeft);
+		enhancedInputComponent->BindAction(leftInputs[4], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonYLeft);
+		enhancedInputComponent->BindAction(leftInputs[5], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonMenuLeft);
+
+		//오른손 입력
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &AVR_Player::OnTriggerLeft);
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVR_Player::OnTriggerLeft);
+		//enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &AVR_Player::RotateAxis);
+		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVR_Player::OnGripRight);
+		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonARight);
+		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonBRight);
+
+		moveComp->SetupPlayerInputComponent(enhancedInputComponent);
 	}
 }
 
@@ -120,9 +140,51 @@ void AVR_Player::OnTriggerLeft(const FInputActionValue& value) {
 	leftLog->SetText(FText::FromString(msg));
 }
 
-void AVR_Player::RotateAxis(const struct FInputActionValue& value) {
-	FVector2D axis = value.Get<FVector2D>();
 
-	AddControllerPitchInput(-axis.Y);
-	AddControllerYawInput(axis.X);
+
+void AVR_Player::OnGripLeft(const struct FInputActionValue& value) {
+	//왼손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	leftLog->SetText(FText::FromString(msg));
+}
+void AVR_Player::OnButtonXLeft(const struct FInputActionValue& value) {
+	//왼손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	leftLog->SetText(FText::FromString(msg));
+}
+void AVR_Player::OnButtonYLeft(const struct FInputActionValue& value) {
+	//왼손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	leftLog->SetText(FText::FromString(msg));
+}
+void AVR_Player::OnButtonMenuLeft(const struct FInputActionValue& value) {
+	//왼손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	leftLog->SetText(FText::FromString(msg));
+}
+
+void AVR_Player::OnTriggerRight(const struct FInputActionValue& value) {
+	//오른손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	rightLog->SetText(FText::FromString(msg));
+}
+void AVR_Player::OnGripRight(const struct FInputActionValue& value) {
+	//오른손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	rightLog->SetText(FText::FromString(msg));
+}
+void AVR_Player::OnButtonARight(const struct FInputActionValue& value) {
+	//오른손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	rightLog->SetText(FText::FromString(msg));
+}
+void AVR_Player::OnButtonBRight(const struct FInputActionValue& value) {
+	//오른손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	rightLog->SetText(FText::FromString(msg));
+}
+void AVR_Player::OnButtonMenuRight(const struct FInputActionValue& value) {
+	//오른손 로그에 값을 출력한다
+	FString msg = FString(__FUNCTION__);
+	rightLog->SetText(FText::FromString(msg));
 }
