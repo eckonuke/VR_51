@@ -5,6 +5,9 @@
 #include "VR_Player.h"
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include <Components/CapsuleComponent.h>
+#include "TeleportRingActor.h"
+#include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
+#include <Kismet/KismetSystemLibrary.h>
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -47,7 +50,7 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 
 void UMoveComponent::Move(const struct FInputActionValue& value) {
 	FVector2D axis = value.Get<FVector2D>();
-	FVector direction = FVector(axis.X, axis.Y, 0.0f);
+	FVector direction = FVector(axis.Y, axis.X, 0.0f);
 
 	player->AddMovementInput(direction.GetSafeNormal(), 1, false);
 
@@ -101,6 +104,17 @@ void UMoveComponent::DrawMoveLine() {
 	for (int32 i = 0; i < lineLoc.Num() - 1; i++) {
 		DrawDebugLine(currentWorld, lineLoc[i], lineLoc[i + 1], FColor::Green, false, -1, 0, 2);
 	}
+	//텔레포트링 이펙트를 마지막 라인 위치에 배치한다
+	if (spawned_fx == nullptr) {
+		//이펙트를 처음 생성한다.
+		spawned_fx = currentWorld->
+			SpawnActor<ATeleportRingActor>(teleport_fx, lineLoc[lineLoc.Num() - 1], FRotator::ZeroRotator);
+	}
+	else {
+		//안보이게 처리된 이펙트를 다시 보이게 설정한다
+		spawned_fx->niagara_fx->SetVisibility(true);
+		spawned_fx->SetActorLocation(lineLoc[lineLoc.Num() - 1]);
+	}
 }
 
 void UMoveComponent::Teleport() {
@@ -109,14 +123,28 @@ void UMoveComponent::Teleport() {
 	targetLoc.Z += player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	if (lineLoc.Num() > 0) {
 		player->SetActorLocation(targetLoc, false, nullptr, ETeleportType::TeleportPhysics);
+	}
 
+	if (spawned_fx != nullptr) {
+		spawned_fx->niagara_fx->SetVisibility(false);
 	}
 }
-
 void UMoveComponent::ShowLine() {
 	bIsShowLine = true;
 }
 void UMoveComponent::HideLine() {
 	bIsShowLine = false;
-	Teleport();
+	TeleportFade();
+	//1초 뒤에 Teleport를 실행해야한다
+	FTimerHandle WaitHandle;
+	float WaitTime = 1;
+	currentWorld->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			Teleport();
+		}), WaitTime, false); //반복도 여기서 추가 변수를 선언해 설정가능
+}
+void UMoveComponent::TeleportFade() {
+	//카메라를 Fade in 한다
+	currentWorld->GetFirstPlayerController()->
+		PlayerCameraManager->StartCameraFade(0.0f, 1.0f, 1.0f, FLinearColor::Black);
 }

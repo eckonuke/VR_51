@@ -73,6 +73,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
 		class UMoveComponent* moveComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
+		class UGraspComponent* graspComp;
+
 private:
 	//©ч╪у ют╥б
 	void OnTriggerLeft(const struct FInputActionValue& value);

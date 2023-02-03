@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MoveComponent.generated.h"
+#include "GraspComponent.generated.h"
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class VR_51_API UMoveComponent : public UActorComponent
+class VR_51_API UGraspComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UMoveComponent();
+	UGraspComponent();
 
 protected:
 	// Called when the game starts
@@ -23,34 +23,33 @@ protected:
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent);
 
 	UPROPERTY(EditAnywhere, Category = Inputs)
-		class UInputAction* leftThumbStick;
+		class UInputAction* grip_right;
 	UPROPERTY(EditAnywhere, Category = Inputs)
-		class UInputAction* leftTrigger;
+		class UInputAction* trigger_right;
 	UPROPERTY(EditAnywhere, Category = Inputs)
-		class UInputAction* rightThumbStick;
+		class UInputAction* trigger_right_touch;
 	UPROPERTY(EditAnywhere, Category = Inputs)
-		float range = 800;
-	
-	UPROPERTY(EditAnywhere, Category = Effect)
-		TSubclassOf<class ATeleportRingActor> teleport_fx;
+		class UInputAction* thumb_right;
+	UPROPERTY(EditAnywhere, Category = Inputs)
+		class UInputAction* thumb_right_touch;
+
+	UPROPERTY(EditAnywhere, Category = Inputs)
+	float grabDistance = 30.0f;
 
 private:
 	class AVR_Player* player;
-	TArray<FVector> lineLoc;
-	bool bIsShowLine = false;
-	class UWorld* currentWorld;
-	class ATeleportRingActor* spawned_fx;
+	class UVRHandAnimInstance* rightHandAnim;
 
-	void Move(const struct FInputActionValue& value);
-	void RotateAxis(const struct FInputActionValue& value);
-	void DrawMoveLine();
-	void Teleport();
-	void ShowLine();
-	void HideLine();
-	void TeleportFade();
+	void GripRightAction(const struct FInputActionValue& value);
+	void TriggerRightAction(const struct FInputActionValue& value);
+	void TrggerRightTouch();
+	void TrggerRightTouchEnd();
+	void ThumbRightTouch();
+	void ThumbRightTouchEnd();
+	void ResetRightFingers();
+	void GrabObject(USkeletalMeshComponent* selectHand);
 };

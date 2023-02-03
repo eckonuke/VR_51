@@ -16,6 +16,7 @@
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputMappingContext.h>
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputAction.h>
 #include "MoveComponent.h"
+#include "GraspComponent.h"
 
 // Sets default values
 AVR_Player::AVR_Player()
@@ -78,6 +79,7 @@ AVR_Player::AVR_Player()
 
 	//액터 MoveComponent 추가
 	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
+	graspComp = CreateDefaultSubobject<UGraspComponent>(TEXT("GraspComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -121,14 +123,15 @@ void AVR_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(leftInputs[5], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonMenuLeft);
 
 		//오른손 입력
-		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &AVR_Player::OnTriggerLeft);
+		/*enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &AVR_Player::OnTriggerLeft);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVR_Player::OnTriggerLeft);
-		//enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &AVR_Player::RotateAxis);
-		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVR_Player::OnGripRight);
+		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &AVR_Player::RotateAxis);
+		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVR_Player::OnGripRight);*/
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonARight);
 		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonBRight);
 
 		moveComp->SetupPlayerInputComponent(enhancedInputComponent);
+		graspComp->SetupPlayerInputComponent(enhancedInputComponent);
 	}
 }
 
