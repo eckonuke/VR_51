@@ -5,6 +5,9 @@
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "VR_Player.h"
 #include "VRHandAnimInstance.h"
+#include "PickUpActor.h"
+#include <Components/SphereComponent.h>
+#include <GameFramework/ProjectileMovementComponent.h>
 
 // Sets default values for this component's properties
 UGraspComponent::UGraspComponent()
@@ -33,18 +36,22 @@ void UGraspComponent::BeginPlay() {
 // Called every frame
 void UGraspComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	
+	if (bIsGrab) {
+		DrawGrabRange();
+		if (IsValid(grabedObject)) {
+			prevLocation = grabedObject->sphereComp->GetComponentLocation();
+		}
+	}
 }
 
 void UGraspComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent) {
-	PlayerInputComponent->BindAction(grip_right, ETriggerEvent::Triggered, this, &UGraspComponent::GripRightAction);
-	PlayerInputComponent->BindAction(grip_right, ETriggerEvent::Completed, this, &UGraspComponent::GripRightAction);
-	PlayerInputComponent->BindAction(trigger_right, ETriggerEvent::Triggered, this, &UGraspComponent::TriggerRightAction);
+	PlayerInputComponent->BindAction(grip_right, ETriggerEvent::Started, this, &UGraspComponent::GripRightAction);
+	PlayerInputComponent->BindAction(grip_right, ETriggerEvent::Completed, this, &UGraspComponent::GripRightRelease);
+	PlayerInputComponent->BindAction(trigger_right, ETriggerEvent::Started, this, &UGraspComponent::TriggerRightAction);
 	PlayerInputComponent->BindAction(trigger_right, ETriggerEvent::Completed, this, &UGraspComponent::TriggerRightAction);
-	PlayerInputComponent->BindAction(trigger_right_touch, ETriggerEvent::Triggered, this, &UGraspComponent::TrggerRightTouch);
+	PlayerInputComponent->BindAction(trigger_right_touch, ETriggerEvent::Started, this, &UGraspComponent::TrggerRightTouch);
 	PlayerInputComponent->BindAction(trigger_right_touch, ETriggerEvent::Completed, this, &UGraspComponent::TrggerRightTouchEnd);
-	PlayerInputComponent->BindAction(thumb_right_touch, ETriggerEvent::Triggered, this, &UGraspComponent::ThumbRightTouch);
+	PlayerInputComponent->BindAction(thumb_right_touch, ETriggerEvent::Started, this, &UGraspComponent::ThumbRightTouch);
 	PlayerInputComponent->BindAction(thumb_right_touch, ETriggerEvent::Completed, this, &UGraspComponent::ThumbRightTouchEnd);
 
 }
@@ -53,6 +60,12 @@ void UGraspComponent::GripRightAction(const struct FInputActionValue& value) {
 	rightHandAnim->PoseAlphaGrasp = value.Get<float>();
 	GrabObject(player->rightHand);
 }
+
+void UGraspComponent::GripRightRelease(const struct FInputActionValue& value) {
+	bIsGrab = false;
+	ReleaseObject(player->rightHand);
+}
+
 void UGraspComponent::TriggerRightAction(const struct FInputActionValue& value) {
 	rightHandAnim->PoseAlphaIndexCurl = value.Get<float>();
 }
@@ -78,13 +91,100 @@ void UGraspComponent::ResetRightFingers() {
 }
 //물체를 잡는 함수
 void UGraspComponent::GrabObject(USkeletalMeshComponent* selectHand) {
-	//방법1 - LineTrace방식
-	FVector startLoc = selectHand->GetComponentLocation();
-	FVector endLoc = startLoc + selectHand->GetRightVector() * grabDistance;
-	FHitResult hitInfo;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(player);
+	if (myGrabType == EGrabType::ELine)
+	{
+		//방법1 - LineTrace 방식
+		FVector startLoc = selectHand->GetComponentLocation();
+		FVector endLoc = startLoc + selectHand->GetRightVector() * grabDistance;
+		FHitResult hitInfo;
 
-	if (GetWorld()->LineTraceSingleByProfile(hitInfo, startLoc, endLoc, TEXT("PickUp"))) {
-		hitInfo.GetActor()->AttachToComponent(selectHand, FAttachmentTransformRules::KeepWorldTransform);
+		if (GetWorld()->LineTraceSingleByProfile(hitInfo, startLoc, endLoc, TEXT("PickUp")) && grabedObject == nullptr)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Yellow, hitInfo.GetActor()->GetName());
+			hitInfo.GetActor()->AttachToComponent(selectHand, FAttachmentTransformRules::KeepWorldTransform);
+			grabedObject = Cast<APickUpActor>(hitInfo.GetActor());
+		}
+	}
+	else if (myGrabType == EGrabType::ESweep)
+	{
+		//방법2 - SphereTrace 방식
+		FVector center = selectHand->GetComponentLocation();
+		FHitResult hitInfo;
+		if (GetWorld()->SweepSingleByProfile(hitInfo, center, center, FQuat::Identity, TEXT("PickUp"), FCollisionShape::MakeSphere(grabDistance), params) && grabedObject == nullptr)
+		{
+			grabedObject = Cast<APickUpActor>(hitInfo.GetActor());
+			if (IsValid(grabedObject)) {
+				//만일, 검색된 물체의 physics가 simulate 중이라면...
+				physicsState = grabedObject->sphereComp->IsSimulatingPhysics();
+				if (physicsState) {
+					//대상의 physics를 꺼준다
+					grabedObject->sphereComp->SetSimulatePhysics(false);
+				}
+				hitInfo.GetActor()->AttachToComponent(selectHand, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GrabPoint"));
+			}
+		}
+	}
+	else if (myGrabType == EGrabType::EOverlap)
+	{
+		//방법3 - 오버랩 방식으로 검사하기
+		FVector center = selectHand->GetComponentLocation();
+		TArray<FOverlapResult> hitInfos;
+		FCollisionObjectQueryParams objectQuery;
+		objectQuery.AddObjectTypesToQuery(ECC_WorldDynamic);
+
+		if (GetWorld()->OverlapMultiByObjectType(hitInfos, center, FQuat::Identity, objectQuery, FCollisionShape::MakeSphere(grabDistance), params))
+		{
+			// 부딪힌 모든 대상을 순회한다.
+			for (FOverlapResult& hitInfo : hitInfos)
+			{
+				// 검사 대상 중에 PickUpActor 클래스인 경우에만 손에 붙인다.
+				APickUpActor* picks = Cast<APickUpActor>(hitInfo.GetActor());
+				if (picks != nullptr)
+				{
+					hitInfo.GetActor()->AttachToComponent(selectHand, FAttachmentTransformRules::KeepWorldTransform);
+				}
+			}
+		}
+	}
+	bIsGrab = true;
+}
+
+void UGraspComponent::ReleaseObject(USkeletalMeshComponent* selectHand) {
+	//만일 잡고 있던 물체가 있다면...
+	if (grabedObject != nullptr) {
+		//잡고 있던 물체를 떼어낸다.
+		grabedObject->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		//물체의 본래 피직스 on/off 여부들 되돌려준다
+		grabedObject->sphereComp->SetSimulatePhysics((physicsState));
+		//날라가야할 방향을 구한다
+		FVector dir = grabedObject->sphereComp->GetComponentLocation() - prevLocation;
+		dir.Normalize();
+		//FVector dir = selectHand->GetPhysicsLinearVelocity();
+		grabedObject->sphereComp->AddImpulse(dir * throwPower);
+		//회전속도
+		FVector dtheta = selectHand->GetPhysicsAngularVelocityInRadians();
+		grabedObject->sphereComp->AddTorqueInRadians(dtheta * throwPower);
+		//grabedObject 포인터 변수를 nullptr로 변경한
+		grabedObject = nullptr;
+
+		
+	}
+}
+
+void UGraspComponent::DrawGrabRange()
+{
+	if (myGrabType == EGrabType::ELine) {
+		//선 그리기 (Line 방식)
+		FVector startLoc = player->rightHand->GetComponentLocation();
+		FVector endLoc = startLoc + player->rightHand->GetRightVector() * grabDistance;
+		DrawDebugLine(GetWorld(), startLoc, endLoc, FColor::Cyan, false, -1, 0, 2);
+
+	}
+	else if (myGrabType == EGrabType::EOverlap || myGrabType == EGrabType::ESweep) {
+		//선그리기 (Sphere 방식)
+		DrawDebugSphere(GetWorld(), player->rightHand->GetComponentLocation(), grabDistance, 30, FColor::Magenta, false, -1, 0, 1);
 	}
 
 }

@@ -4,6 +4,7 @@
 #include "PickUpActor.h"
 #include <Components/SphereComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include <GameFramework/ProjectileMovementComponent.h>
 
 // Sets default values
 APickUpActor::APickUpActor()
