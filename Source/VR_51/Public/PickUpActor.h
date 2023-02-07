@@ -23,8 +23,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = "PickUp")
-		class USphereComponent* sphereComp;
-	UPROPERTY(EditAnywhere, Category = "PickUp")
-		class UStaticMeshComponent* meshComp;
+	//UPROPERTY(EditAnywhere, Category = "PickUp")
+	//	class USphereComponent* sphereComp;
+	//UPROPERTY(EditAnywhere, Category = "PickUp")
+	//	class UStaticMeshComponent* meshComp;
+	//UFUNCTION(BlueprintPure)
+	//FORCEINLINE USphereComponent* GetRootComp() { return RootComponent; };
+
+protected:
+	FName collisionProfileName = FName(TEXT("PickUp"));
 };
