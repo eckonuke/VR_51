@@ -30,6 +30,9 @@ public:
 	//UFUNCTION(BlueprintPure)
 	//FORCEINLINE USphereComponent* GetRootComp() { return RootComponent; };
 
+	UPROPERTY(EditAnywhere, Category=BaseSettings)
+	FVector gripOffset;
+
 protected:
 	FName collisionProfileName = FName(TEXT("PickUp"));
 };

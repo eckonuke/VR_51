@@ -122,7 +122,9 @@ void UGraspComponent::GrabObject(USkeletalMeshComponent* selectHand) {
 					physicsState = boxComp->IsSimulatingPhysics();
 					boxComp->SetSimulatePhysics(false);
 				}
+				//손의 소켓에 검색된 PickUp 액터를 붙인다.
 				hitInfo.GetActor()->AttachToComponent(selectHand, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GrabPoint"));
+				grabedObject->SetActorRelativeLocation(grabedObject->gripOffset);
 			}
 		}
 	}
