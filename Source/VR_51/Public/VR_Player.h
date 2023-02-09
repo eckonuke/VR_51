@@ -59,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | ModuleSetting")
 		TEnumAsByte<enum EHMDTrackingOrigin::Type> trackOrigin;
 
-	//
+	//Input¿¡ ´ëÇÑ ÃÑ ¸ÊÇÎ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Inputs")
 		class UInputMappingContext* myMapping;
 
@@ -75,11 +75,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
 		class UGraspComponent* graspComp;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
+		class UWidgetInteractionComponent* widgetPointer_right;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
+		class UWidgetPointerComponent* widgetPointerComp;
 
 private:
 	//¿Þ¼Õ ÀÔ·Â
 	void OnTriggerLeft(const struct FInputActionValue& value);
-	
+
 	void OnGripLeft(const struct FInputActionValue& value);
 	void OnButtonXLeft(const struct FInputActionValue& value);
 	void OnButtonYLeft(const struct FInputActionValue& value);

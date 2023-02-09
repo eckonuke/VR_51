@@ -17,6 +17,8 @@
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputAction.h>
 #include "MoveComponent.h"
 #include "GraspComponent.h"
+#include <UMG/Public/Components/WidgetInteractionComponent.h>
+#include "WidgetPointerComponent.h"
 
 // Sets default values
 AVR_Player::AVR_Player()
@@ -43,6 +45,9 @@ AVR_Player::AVR_Player()
 	rightHand->SetupAttachment(rightController);
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	rightHand->SetRelativeRotation(FRotator(25.0f, 180.0f, 90.0f));
+
+	widgetPointer_right = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("Widget Pointer"));
+	widgetPointer_right->SetupAttachment(rightController);
 
 	//오른손 로그
 	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Right Log Text"));
@@ -80,6 +85,7 @@ AVR_Player::AVR_Player()
 	//액터 MoveComponent 추가
 	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
 	graspComp = CreateDefaultSubobject<UGraspComponent>(TEXT("GraspComponent"));
+	widgetPointerComp = CreateDefaultSubobject<UWidgetPointerComponent>(TEXT("Widget Pointer Component"));
 }
 
 // Called when the game starts or when spawned
@@ -127,10 +133,10 @@ void AVR_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &AVR_Player::RotateAxis);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVR_Player::OnGripRight);*/
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonARight);
-		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonBRight);
-
+		//enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonBRight);
 		moveComp->SetupPlayerInputComponent(enhancedInputComponent);
 		graspComp->SetupPlayerInputComponent(enhancedInputComponent);
+		widgetPointerComp->SetupPlayerInputComponent(enhancedInputComponent);
 	}
 }
 
