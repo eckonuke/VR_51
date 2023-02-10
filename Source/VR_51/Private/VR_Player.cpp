@@ -132,12 +132,18 @@ void AVR_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVR_Player::OnTriggerLeft);
 		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &AVR_Player::RotateAxis);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVR_Player::OnGripRight);*/
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &AVR_Player::Recenter);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonARight);
 		//enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AVR_Player::OnButtonBRight);
 		moveComp->SetupPlayerInputComponent(enhancedInputComponent);
 		graspComp->SetupPlayerInputComponent(enhancedInputComponent);
 		widgetPointerComp->SetupPlayerInputComponent(enhancedInputComponent);
 	}
+}
+
+void AVR_Player::Recenter() {
+	//다시 플레이어의 원점으로 방향 설정
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
 void AVR_Player::OnTriggerLeft(const FInputActionValue& value) {
@@ -147,9 +153,6 @@ void AVR_Player::OnTriggerLeft(const FInputActionValue& value) {
 	FString msg = FString::Printf(TEXT("%f"), val);
 	leftLog->SetText(FText::FromString(msg));
 }
-
-
-
 void AVR_Player::OnGripLeft(const struct FInputActionValue& value) {
 	//왼손 로그에 값을 출력한다
 	FString msg = FString(__FUNCTION__);

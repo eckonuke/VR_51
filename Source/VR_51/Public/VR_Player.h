@@ -83,9 +83,10 @@ public:
 		class UWidgetPointerComponent* widgetPointerComp;
 
 private:
+	void Recenter();
+
 	//©ч╪у ют╥б
 	void OnTriggerLeft(const struct FInputActionValue& value);
-
 	void OnGripLeft(const struct FInputActionValue& value);
 	void OnButtonXLeft(const struct FInputActionValue& value);
 	void OnButtonYLeft(const struct FInputActionValue& value);
