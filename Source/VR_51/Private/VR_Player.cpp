@@ -30,6 +30,11 @@ AVR_Player::AVR_Player()
 	compCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	compCamera->SetupAttachment(RootComponent);
 
+	//게이즈 포인터 UI
+	gazePointer = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gaze Pointer"));
+	gazePointer->SetupAttachment(compCamera);
+	gazePointer->SetRelativeLocation(FVector(300, 0, 0));
+
 	//머리 모양
 	headMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Head"));
 	headMesh->SetupAttachment(compCamera);

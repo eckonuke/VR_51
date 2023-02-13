@@ -30,7 +30,8 @@ public:
 	//카메라 컴포넌트
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
 		class UCameraComponent* compCamera;
-
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
+		class UStaticMeshComponent* gazePointer;
 	//오른손 컨트롤러
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
 		class UMotionControllerComponent* rightController;

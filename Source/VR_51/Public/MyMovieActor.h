@@ -28,9 +28,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* screenComp;
 	UPROPERTY(EditAnywhere)
-	class UMediaSource* videoSource;
+	TArray<class UMediaSource*> videoSource;
 	UPROPERTY(EditAnywhere)
-	class UMediaPlayer* mediaPlayer;
+	TArray<class UMediaPlayer*> mediaPlayer;
 	UPROPERTY(EditAnywhere)
 	class UMediaSoundComponent* soundComp;
 	UPROPERTY(EditAnywhere)

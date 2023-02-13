@@ -6,10 +6,10 @@
 #include "MyMovieActor.h"
 
 void UMovieWidget::NativeConstruct() {
-	btn_play->OnClicked.AddDynamic(this, &UMovieWidget::Play);
-	btn_stop->OnClicked.AddDynamic(this, &UMovieWidget::Stop);
-	btn_reverse->OnClicked.AddDynamic(this, &UMovieWidget::Reverse);
-	btn_forward->OnClicked.AddDynamic(this, &UMovieWidget::Forward);
+	btn_play->OnPressed.AddDynamic(this, &UMovieWidget::Play);
+	btn_stop->OnPressed.AddDynamic(this, &UMovieWidget::Stop);
+	btn_reverse->OnPressed.AddDynamic(this, &UMovieWidget::Reverse);
+	btn_forward->OnPressed.AddDynamic(this, &UMovieWidget::Forward);
 }
 
 void UMovieWidget::Play()
