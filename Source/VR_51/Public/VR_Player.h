@@ -83,6 +83,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
 		class UWidgetPointerComponent* widgetPointerComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
+	class UGazeComponent* gazeComp;
+
 private:
 	void Recenter();
 

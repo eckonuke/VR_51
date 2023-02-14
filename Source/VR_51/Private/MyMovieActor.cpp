@@ -36,6 +36,7 @@ void AMyMovieActor::BeginPlay() {
 			movieWidget->movieActor = this;
 		}
 	}
+	PlayMovie();
 }
 
 // Called every frame
@@ -47,7 +48,7 @@ void AMyMovieActor::Tick(float DeltaTime) {
 void AMyMovieActor::PlayMovie() {
 	//UE_LOG(LogTemp, Warning, TEXT("Pressed PlayMovie Function!!!!!!!!!!!!!!!!!!!!"));
 	//미디어 플레이 테스트
-	for (int32 i = 0; i < videoSource.Num(); i++) {
+	for (int32 i = 0; i < mediaPlayer.Num(); i++) {
 		if (videoSource[i] != nullptr && mediaPlayer[0] != nullptr) {
 			if (mediaPlayer[i]->IsPlaying()) {
 				mediaPlayer[i]->Pause();
@@ -85,4 +86,13 @@ void AMyMovieActor::ForwardMovie(float second) {
 		FTimespan modifiedTime = mediaPlayer[0]->GetTime() + FTimespan(0, 0, second);
 		mediaPlayer[0]->Seek(modifiedTime);
 	}
+}
+
+void AMyMovieActor::ChangeMovie() {
+	//videoSource의 0번과 1번을 계속 번갈아가며 변경한다
+	FTimespan currentPlayTime = mediaPlayer[0]->GetTime();
+
+	videoNum = ++videoNum % 2;
+	mediaPlayer[0]->OpenSource(videoSource[videoNum]);
+	mediaPlayer[0]->Seek(currentPlayTime);
 }
