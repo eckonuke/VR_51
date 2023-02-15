@@ -86,6 +86,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
 	class UGazeComponent* gazeComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR_Settings | Components")
+	class UClimbComponent* climbComp;
+
 private:
 	void Recenter();
 

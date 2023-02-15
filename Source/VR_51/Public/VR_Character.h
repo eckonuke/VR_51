@@ -19,7 +19,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -27,9 +27,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
-		class UCameraComponent* compCamera; 
+		class UCameraComponent* compCamera;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
+		FVector controllerLocation_Left;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
+		FVector controllerLocation_Right;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
 		class UMotionControllerComponent* rightController;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Compoenets")
 		class UMotionControllerComponent* leftController;
+
 };

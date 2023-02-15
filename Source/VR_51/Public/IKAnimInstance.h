@@ -7,7 +7,7 @@
 #include "IKAnimInstance.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class VR_51_API UIKAnimInstance : public UAnimInstance
@@ -16,12 +16,16 @@ class VR_51_API UIKAnimInstance : public UAnimInstance
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector controllerLocation_Left;
+		FVector controllerLocation_Left;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector controllerLocation_Right;
+		FVector controllerLocation_Right;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FVector headLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator controllerRotation_Left;
+		FRotator controllerRotation_Left;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator controllerRotation_Right;
+		FRotator controllerRotation_Right;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FRotator headRotation;
 };
